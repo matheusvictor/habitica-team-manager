@@ -28,6 +28,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         observe()
+        verifyLoggedUser()
 
     }
 
@@ -39,6 +40,12 @@ class LoginActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(applicationContext, it.validationFailure(), Toast.LENGTH_SHORT)
                     .show()
+            }
+        })
+
+        mLoginViewModel.loggedUser.observe(this, Observer {
+            if(it){
+                Toast.makeText(applicationContext, "Is logged", Toast.LENGTH_LONG).show()
             }
         })
 
@@ -69,6 +76,10 @@ class LoginActivity : AppCompatActivity() {
             }
             false
         }
+    }
+
+    private fun verifyLoggedUser(){
+        mLoginViewModel.verifyLoggedUser()
     }
     
 }
