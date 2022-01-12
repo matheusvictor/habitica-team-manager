@@ -13,6 +13,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HabiticaTeamManager">
         <activity
+            android:name=".view.MainActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.LoginActivity"
             android:exported="true">
             <intent-filter>
