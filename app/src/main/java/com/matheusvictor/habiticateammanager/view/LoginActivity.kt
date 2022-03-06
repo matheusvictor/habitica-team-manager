@@ -1,13 +1,18 @@
 package com.matheusvictor.habiticateammanager.view
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.matheusvictor.habiticateammanager.R
+import com.matheusvictor.habiticateammanager.service.constants.AppConstants
 import com.matheusvictor.habiticateammanager.viewmodel.LoginViewModel
 import kotlinx.android.synthetic.main.activity_login.*
+import java.util.concurrent.Executor
 
 class LoginActivity : AppCompatActivity() {
 
@@ -23,12 +28,14 @@ class LoginActivity : AppCompatActivity() {
 
         mLoginViewModel = ViewModelProvider(this)[LoginViewModel::class.java]
 
+        mLoginViewModel.isFingerprintAuthenticationAvailable()
+
         button_login.setOnClickListener {
             if (fieldIsNotEmpty()) handleLogin()
         }
 
         observe()
-        verifyLoggedUser()
+//        verifyLoggedUser()
 
     }
 
@@ -36,16 +43,22 @@ class LoginActivity : AppCompatActivity() {
 
         mLoginViewModel.login.observe(this, Observer {
             if (it.validationSuccess()) {
-                Toast.makeText(applicationContext, "Success", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, MainActivity::class.java))
             } else {
                 Toast.makeText(applicationContext, it.validationFailure(), Toast.LENGTH_SHORT)
                     .show()
             }
         })
 
-        mLoginViewModel.loggedUser.observe(this, Observer {
-            if(it){
-                Toast.makeText(applicationContext, "Is logged", Toast.LENGTH_LONG).show()
+//        mLoginViewModel.loggedUser.observe(this, Observer {
+//            if(it){
+//                Toast.makeText(applicationContext, "Is logged", Toast.LENGTH_LONG).show()
+//            }
+//        })
+
+        mLoginViewModel.fingerPrint.observe(this, Observer {
+            if (it) {
+                showFingerprintAuthentication()
             }
         })
 
@@ -81,5 +94,28 @@ class LoginActivity : AppCompatActivity() {
     private fun verifyLoggedUser(){
         mLoginViewModel.verifyLoggedUser()
     }
-    
+
+    private fun showFingerprintAuthentication() {
+
+        val executor: Executor = ContextCompat.getMainExecutor(this)
+
+        val biometricPrompt = BiometricPrompt(
+            this@LoginActivity,
+            executor,
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    startActivity(Intent(applicationContext, MainActivity::class.java))
+                    finish()
+                }
+            })
+
+        val biometricInfo: BiometricPrompt.PromptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Welcome again!")
+            .setNegativeButtonText("Cancel")
+            .build()
+
+        biometricPrompt.authenticate(biometricInfo)
+    }
+
 }

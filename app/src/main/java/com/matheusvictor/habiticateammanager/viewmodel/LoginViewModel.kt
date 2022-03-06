@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.matheusvictor.habiticateammanager.helper.FingerPrintHelper
 import com.matheusvictor.habiticateammanager.service.constants.AppConstants
 import com.matheusvictor.habiticateammanager.service.listener.APIListener
 import com.matheusvictor.habiticateammanager.service.listener.ValidationListener
@@ -23,6 +24,10 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     private val mLoggedUser = MutableLiveData<Boolean>()
     val loggedUser: LiveData<Boolean> = mLoggedUser
+
+    // Login with FingerPrint
+    private val mFingerPrint = MutableLiveData<Boolean>()
+    val fingerPrint: LiveData<Boolean> = mFingerPrint
 
     fun doLogin(username: String, password: String) {
 
@@ -45,6 +50,21 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             }
 
         })
+    }
+
+    fun isFingerprintAuthenticationAvailable() {
+
+        val username = mSharedPreferences.get(AppConstants.SHARED.USERNAME)
+        val apiToken = mSharedPreferences.get(AppConstants.SHARED.API_TOKEN)
+
+        val userEverLogged = (username != "" && apiToken != "")
+
+        RetrofitClient.addHeaders(username, apiToken)
+
+        if (FingerPrintHelper.isBiometricAuthenticationAvailable(getApplication())) {
+            mFingerPrint.value = userEverLogged
+        }
+
     }
 
     fun verifyLoggedUser() {

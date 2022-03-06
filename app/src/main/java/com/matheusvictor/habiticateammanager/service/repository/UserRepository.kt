@@ -28,7 +28,6 @@ class UserRepository(context: Context) {
             override fun onResponse(call: Call<LoginDataModel>,
                                     response: Response<LoginDataModel>)
             {
-
                 val code = response.code()
 
                 if (code == AppConstants.HTTP.SUCCESS) {
@@ -41,7 +40,6 @@ class UserRepository(context: Context) {
                     }
                 }
             }
-
         })
 
     }
